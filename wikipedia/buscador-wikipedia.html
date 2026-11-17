@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quem é essa pessoa?</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;800&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #e1e1e1;
+    --surface: #ffffff;
+    --ink: #14202b;
+    --muted: #5b6b7a;
+    --line: #d5dce3;
+    --accent: #1f4fd8;
+    --accent-ink: #ffffff;
+    --sans: "Archivo", system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+    --serif: "Source Serif 4", Georgia, "Times New Roman", serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #ffffff;
+      --surface: #1a242e;
+      --ink: #000000;
+      --muted: #000000;
+      --line: #2c3946;
+      --accent: #ffffff;
+      --accent-ink: #ffffff;
+    }
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    line-height: 1.5;
+  }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 48px 20px 80px; }
+
+  h1 {
+    font-size: clamp(2.4rem, 7vw, 4.5rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    margin: 0 0 12px;
+  }
+  .lead { color: var(--muted); margin: 0 0 28px; max-width: 46ch; }
+
+  .search { display: flex; gap: 10px; flex-wrap: wrap; }
+  .search input {
+    flex: 1 1 260px;
+    font: inherit;
+    font-size: 1.15rem;
+    padding: 14px 16px;
+    color: var(--ink);
+    background: var(--surface);
+    border: 2px solid var(--line);
+    border-radius: 6px;
+  }
+  .search input:focus { outline: 3px solid var(--accent); outline-offset: 1px; border-color: var(--accent); }
+  button {
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+    border-radius: 6px;
+    padding: 14px 22px;
+    border: 2px solid var(--accent);
+    background: var(--accent);
+    color: var(--accent-ink);
+  }
+  button:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+  button:disabled { opacity: .6; cursor: wait; }
+
+  .modes { margin: 16px 0 0; display: flex; gap: 20px; flex-wrap: wrap; color: var(--muted); font-size: .95rem; }
+  .modes label { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
+
+  #status { margin: 28px 0 0; color: var(--muted); min-height: 1.5em; }
+  #status.erro { color: #c0392b; }
+
+  .others { display: flex; flex-wrap: wrap; gap: 8px; margin: 20px 0 0; align-items: center; }
+  .others span { color: var(--muted); font-size: .9rem; }
+  .others button {
+    padding: 6px 12px;
+    font-size: .9rem;
+    font-weight: 400;
+    background: transparent;
+    color: var(--ink);
+    border: 1px solid var(--line);
+  }
+  .others button:hover { border-color: var(--accent); }
+
+  .perfil {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    gap: 40px;
+    margin-top: 36px;
+    padding-top: 36px;
+    border-top: 2px solid var(--ink);
+  }
+  .foto { position: sticky; top: 20px; align-self: start; }
+  .foto img { width: 100%; height: auto; display: block; border-radius: 4px; background: var(--line); }
+  .foto .sem-foto {
+    aspect-ratio: 3 / 4;
+    display: grid; place-items: center;
+    background: var(--line); color: var(--muted);
+    border-radius: 4px; font-size: .9rem; text-align: center; padding: 12px;
+  }
+  .foto a { display: inline-block; margin-top: 14px; color: var(--accent); font-weight: 600; }
+
+  .texto h2.nome { font-size: clamp(1.8rem, 4vw, 2.6rem); font-weight: 800; letter-spacing: -0.02em; line-height: 1.1; margin: 0; }
+  .texto .desc { color: var(--muted); margin: 6px 0 24px; font-size: 1.05rem; }
+  .corpo { font-family: var(--serif); font-size: 1.12rem; line-height: 1.7; max-width: 68ch; }
+  .corpo p { margin: 0 0 1.1em; }
+  .corpo h3 {
+    font-family: var(--sans);
+    font-size: 1.15rem;
+    font-weight: 600;
+    margin: 1.8em 0 .5em;
+    padding-top: .8em;
+    border-top: 1px solid var(--line);
+  }
+  .corpo h4 { font-family: var(--sans); font-size: 1rem; font-weight: 600; margin: 1.4em 0 .4em; color: var(--muted); }
+  .licenca { margin-top: 36px; color: var(--muted); font-size: .85rem; max-width: 68ch; }
+  .licenca a { color: var(--accent); }
+
+  @media (max-width: 720px) {
+    .perfil { grid-template-columns: 1fr; gap: 24px; }
+    .foto { position: static; max-width: 220px; }
+  }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+</style>
+</head>
+<body>
+<main class="wrap">
+  <h1>Quem é essa pessoa?</h1>
+  <p class="lead">Digite o nome de alguém conhecido e leia a biografia da Wikipedia aqui mesmo.</p>
+
+  <form class="search" id="form" autocomplete="off">
+    <input id="nome" type="text" placeholder="Ex.: Santos Dumont" aria-label="Nome da pessoa" required>
+    <button type="submit" id="botao">Buscar</button>
+  </form>
+
+  <div class="modes">
+    <label><input type="radio" name="modo" value="resumo" checked> Só o resumo</label>
+    <label><input type="radio" name="modo" value="completo"> Artigo completo</label>
+  </div>
+
+  <p id="status" role="status" aria-live="polite"></p>
+  <div id="outros" class="others" hidden></div>
+  <section id="resultado" hidden></section>
+</main>
+
+<script>
+  const API = "https://pt.wikipedia.org/w/api.php";
+  const form = document.getElementById("form");
+  const campo = document.getElementById("nome");
+  const botao = document.getElementById("botao");
+  const status = document.getElementById("status");
+  const outros = document.getElementById("outros");
+  const resultado = document.getElementById("resultado");
+
+  function modoAtual() {
+    return document.querySelector('input[name="modo"]:checked').value;
+  }
+
+  async function chamarApi(params) {
+    const url = API + "?" + new URLSearchParams({ format: "json", origin: "*", ...params });
+    const resp = await fetch(url);
+    if (!resp.ok) throw new Error("Falha na conexão com a Wikipedia.");
+    return resp.json();
+  }
+
+  async function buscarTitulos(nome) {
+    const dados = await chamarApi({
+      action: "query", list: "search", srsearch: nome, srlimit: 5
+    });
+    return dados.query.search.map(r => r.title);
+  }
+
+  async function carregarPagina(titulo) {
+    const params = {
+      action: "query",
+      titles: titulo,
+      redirects: 1,
+      prop: "extracts|pageimages|description|info",
+      explaintext: 1,
+      exsectionformat: "wiki",
+      piprop: "thumbnail",
+      pithumbsize: 500,
+      inprop: "url"
+    };
+    if (modoAtual() === "resumo") params.exintro = 1;
+    const dados = await chamarApi(params);
+    return Object.values(dados.query.pages)[0];
+  }
+
+  function renderizarTexto(container, texto) {
+    const linhas = texto.split("\n");
+    let paragrafo = [];
+    const fechar = () => {
+      if (paragrafo.length) {
+        const p = document.createElement("p");
+        p.textContent = paragrafo.join(" ");
+        container.appendChild(p);
+        paragrafo = [];
+      }
+    };
+    const ignorar = ["Referências", "Ligações externas", "Ver também", "Bibliografia", "Notas"];
+    let pular = false;
+
+    for (const linha of linhas) {
+      const m = linha.match(/^(=+)\s*(.+?)\s*\1$/);
+      if (m) {
+        fechar();
+        const titulo = m[2];
+        const nivel = m[1].length;
+        if (nivel === 2) pular = ignorar.includes(titulo);
+        if (pular) continue;
+        const h = document.createElement(nivel === 2 ? "h3" : "h4");
+        h.textContent = titulo;
+        container.appendChild(h);
+      } else if (pular) {
+        continue;
+      } else if (linha.trim() === "") {
+        fechar();
+      } else {
+        paragrafo.push(linha.trim());
+      }
+    }
+    fechar();
+  }
+
+  function mostrarPessoa(pagina) {
+    resultado.replaceChildren();
+
+    const perfil = document.createElement("article");
+    perfil.className = "perfil";
+
+    const foto = document.createElement("div");
+    foto.className = "foto";
+    if (pagina.thumbnail) {
+      const img = document.createElement("img");
+      img.src = pagina.thumbnail.source;
+      img.alt = "Foto de " + pagina.title;
+      foto.appendChild(img);
+    } else {
+      const vazio = document.createElement("div");
+      vazio.className = "sem-foto";
+      vazio.textContent = "Sem foto disponível";
+      foto.appendChild(vazio);
+    }
+    const link = document.createElement("a");
+    link.href = pagina.fullurl;
+    link.target = "_blank";
+    link.rel = "noopener";
+    link.textContent = "Abrir na Wikipedia";
+    foto.appendChild(link);
+
+    const texto = document.createElement("div");
+    texto.className = "texto";
+    const nome = document.createElement("h2");
+    nome.className = "nome";
+    nome.textContent = pagina.title;
+    texto.appendChild(nome);
+    if (pagina.description) {
+      const d = document.createElement("p");
+      d.className = "desc";
+      d.textContent = pagina.description;
+      texto.appendChild(d);
+    }
+    const corpo = document.createElement("div");
+    corpo.className = "corpo";
+    renderizarTexto(corpo, pagina.extract || "Esta página não tem texto disponível.");
+    texto.appendChild(corpo);
+
+    const lic = document.createElement("p");
+    lic.className = "licenca";
+    lic.append("Texto da Wikipedia, disponível sob a licença ");
+    const a = document.createElement("a");
+    a.href = "https://creativecommons.org/licenses/by-sa/4.0/deed.pt-br";
+    a.target = "_blank";
+    a.rel = "noopener";
+    a.textContent = "CC BY-SA 4.0";
+    lic.appendChild(a);
+    lic.append(".");
+    texto.appendChild(lic);
+
+    perfil.append(foto, texto);
+    resultado.appendChild(perfil);
+    resultado.hidden = false;
+  }
+
+  function mostrarOutros(titulos, atual) {
+    outros.replaceChildren();
+    const lista = titulos.filter(t => t !== atual);
+    if (!lista.length) { outros.hidden = true; return; }
+    const rotulo = document.createElement("span");
+    rotulo.textContent = "Não era essa? Tente:";
+    outros.appendChild(rotulo);
+    for (const t of lista) {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.textContent = t;
+      b.addEventListener("click", () => abrirTitulo(t, titulos));
+      outros.appendChild(b);
+    }
+    outros.hidden = false;
+  }
+
+  async function abrirTitulo(titulo, todos) {
+    status.className = "";
+    status.textContent = "Carregando " + titulo + "…";
+    try {
+      const pagina = await carregarPagina(titulo);
+      mostrarPessoa(pagina);
+      mostrarOutros(todos, pagina.title);
+      status.textContent = "";
+    } catch (e) {
+      status.className = "erro";
+      status.textContent = "Não consegui carregar a página. Verifique sua internet e tente de novo.";
+    }
+  }
+
+  form.addEventListener("submit", async (ev) => {
+    ev.preventDefault();
+    const nome = campo.value.trim();
+    if (!nome) return;
+
+    botao.disabled = true;
+    status.className = "";
+    status.textContent = "Buscando…";
+    resultado.hidden = true;
+    outros.hidden = true;
+
+    try {
+      const titulos = await buscarTitulos(nome);
+      if (!titulos.length) {
+        status.className = "erro";
+        status.textContent = "Não encontrei ninguém com esse nome. Tente o nome completo ou outra grafia.";
+      } else {
+        await abrirTitulo(titulos[0], titulos);
+      }
+    } catch (e) {
+      status.className = "erro";
+      status.textContent = "Não consegui buscar agora. Verifique sua internet e tente de novo.";
+    } finally {
+      botao.disabled = false;
+    }
+  });
+
+  // Trocar entre resumo e artigo completo refaz a busca da pessoa atual
+  document.querySelectorAll('input[name="modo"]').forEach(r => {
+    r.addEventListener("change", () => {
+      if (!resultado.hidden && campo.value.trim()) form.requestSubmit();
+    });
+  });
+</script>
+</body>
+</html>
